@@ -1,0 +1,2 @@
+# pyrate
+Pyrate album downloader.
