@@ -2,16 +2,29 @@
 # pyrate.py
 # http://mixunit.com album downloader
 # @author Plum
-# @version 2.0
+# @version 3.0
 # Usage: python3 pyrate.py -url https://www.mixunit.com/p/1239095-gray-grey-suicideboys-2017
 # Usage: python3 pyrate.py -search lol
 ##
 
-import argparse
-import requests
-import bs4
 import os
+import bs4
+import sys
 import eyed3
+import gevent
+import argparse
+from gevent import monkey
+from gevent.pool import Pool
+
+# Monkey patch before importing requests to avoid warnings
+monkey.patch_all()
+
+import requests
+
+
+# Create pool for workers
+# Edit at your own risk. Can cause laginess on computer if there are too many workers
+pool = Pool(50)
 
 # Parse all album details and tracklist from page source
 def album_details(soup, tracknums):
@@ -46,13 +59,26 @@ def album_details(soup, tracknums):
 	}
 	return album_info
 
+# Track download worker
+def worker(dl_url, trackid, trackname, dirname):
+		get = requests.get(dl_url+trackid)
+		trackpath = dirname+"/"+trackname+".mp3"
+		with open(trackpath, "wb+") as file:
+			file.write(get.content)
+		eyed = eyed3.load(trackpath)
+		eyed.tag.images.set(3, open(dirname+"/album_art.jpg",'rb').read(), 'image/jpeg')
+		eyed.tag.save()
+		print("Downloaded track: %s" % (trackname))
+
 # Download each track and album art
 def download_album(dirname, albumid, tracks):
 	# Create dirctory and download album art to dir
 	try:
 		os.mkdir(dirname)
-	except OSError:
+	except OSError as e:
 		print ("Failed to create directory %s" % dirname)
+		print(e)
+		exit()
 	else:
 		print ("Created directory '%s'" % dirname)
 		getart = requests.get(details['albumart'])
@@ -62,17 +88,13 @@ def download_album(dirname, albumid, tracks):
 
     # Download each track file
 	dl_url = "https://www.mixunit.com/p/%s/track/" % (albumid)
+	jobs = []
 	for track in tracks.items():
 		trackid = track[0]
 		trackname = track[1].replace("/", "\\")
-		get = requests.get(dl_url+trackid)
-		trackpath = dirname+"/"+trackname+".mp3"
-		with open(trackpath, "wb+") as file:
-			file.write(get.content)
-		eyed = eyed3.load(trackpath)
-		eyed.tag.images.set(3, open(dirname+"/album_art.jpg",'rb').read(), 'image/jpeg')
-		eyed.tag.save()
-		print("Downloaded track: %s" % (trackname))
+		jobs.append(pool.spawn(worker, dl_url, trackid, trackname, dirname))
+	pool.join()
+
 
 # Search for music
 def search(keyword, limit, offset):
@@ -115,16 +137,20 @@ def search(keyword, limit, offset):
 				offset = limit
 				if int(offset) > int(total.replace(",", "")):
 					offset = 0
+					print("\033[%sF\033[J" % (int(len(a))+8), end="")
 					print("No more results to display, refreshing last page.")
 					search(keyword, limit, offset)
 				else:
+					print("\033[%sF\033[J" % (int(len(a))+6), end="")
 					search(keyword, limit, offset)
 			else:
 				offset = int(offset) + int(limit)
 				if int(offset) > int(total.replace(",", "")):
+					print("\033[%sF\033[J" % (int(len(a))+8), end="")
 					print("\nNo more results to display, refeshing last page.")
 					search(keyword, limit, int(offset)-int(limit))
 				else:
+					print("\033[%sF\033[J" % (int(len(a))+6), end="")
 					search(keyword, limit, offset)
 		else:
 			inp = inp.split(",")
@@ -186,4 +212,8 @@ if args.url:
 	else:
 		print("Failed to get album details. Check to make sure URL is correct.")
 elif args.search:
+	# In order to use ANSI escape codes on Windows they must be activated first.
+	# The easiest way that I have found is to simply run the color command first
+	if sys.platform == 'win32':
+		os.system("color")
 	search(args.search, args.limit, 0)
