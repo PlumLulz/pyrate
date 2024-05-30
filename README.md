@@ -11,4 +11,4 @@ Usage: python3 pyrate.py -search "Project Pat" -l 10
 
 | Albums Downloaded | Time with gevent | Time without gevent |
 | --- | --- | --- |
-| database1\ sadsadasd | 2GB | 3m:19s |
+| database1<br/>sadsadasd | 2GB | 3m:19s |
