@@ -117,7 +117,7 @@ def search(keyword, limit, offset):
 			url = row['href']
 			results.append([url, title])
 			print("ID: %s Title: %s" % (aid, title))
-		inp = input("\nHit enter for next page, type 'none' to cancel, 'all' to download results displayed, or IDs separated by commas to download: ")
+		inp = input("\nHit enter for next page, type 'prev' for previous page, 'none' to cancel, 'all' to download results displayed, or IDs separated by commas to download: ")
 		if inp.lower() == "none":
 			pass
 		elif inp.lower() == "all":
@@ -152,7 +152,15 @@ def search(keyword, limit, offset):
 				else:
 					print("\033[%sF\033[J" % (int(len(a))+6), end="")
 					search(keyword, limit, offset)
-		else:
+		elif inp.lower() == "prev":
+			if offset == 0:
+					print("\033[%sF\033[J" % (int(len(a))+6), end="")
+					search(keyword, limit, offset)
+			else:
+				offset = int(offset) - int(limit)
+				print("\033[%sF\033[J" % (int(len(a))+6), end="")
+				search(keyword, limit, offset)
+		elif all(i.isdigit() for i in inp.split(",")) == True:
 			inp = inp.split(",")
 			for aid in inp:
 				if int(aid) < int(total.replace(",", "")):
@@ -165,6 +173,8 @@ def search(keyword, limit, offset):
 						download_album(details['artist']+" - "+details['album'], details['albumid'], details['tracklist'])
 					else:
 						print("Failed to get album details for: %s" % (results[aid][1]))
+		else:
+			print("Invalid option.")
 	elif status == 404:
 		print("No results found.")
 
