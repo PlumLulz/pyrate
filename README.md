@@ -12,3 +12,4 @@ Usage: python3 pyrate.py -search "Project Pat" -l 10
 | Albums Downloaded | Time with gevent | Time without gevent |
 | --- | --- | --- |
 | Project Pat - Street God #2<br/>Project Pat - Street God #3 | 0m43s | 2m:53s |
+| 99 Ways To Die - Master P (1995)<br/>Game Face - Master P (2001)<br/>Ghetto Postage - Master P (2000) | 2m:13s | 6m:14s |
