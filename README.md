@@ -7,6 +7,7 @@ Usage: python3 pyrate.py -search "Project Pat" -l 10
 # Update 3.0
 - Added gevent to use multiple threads when downloading album tracks. This greatly improved download speeds as seen in the table below.
 - Updated search function to clear previous results before the new results are displayed. This helps keep the console clear when going through search results.
+- Added previous page option to search function.
 
 
 | Albums Downloaded | Time with gevent | Time without gevent |
