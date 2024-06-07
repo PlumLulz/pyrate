@@ -202,7 +202,7 @@ g1 = parser.add_mutually_exclusive_group(required=True)
 g1.add_argument('-url', help='Enter URL of mixunit.com album to download.')
 g1.add_argument('-search', help='Artist or album to search for.')
 parser.add_argument('-tracks', help='List of tracks to download separated by commas. Ex: 2,3,10,11')
-parser.add_argument('-limit', help='Value to limit search results by.', default=60)
+parser.add_argument('-limit', help='Value to limit search results by.', default=25)
 args = parser.parse_args()
 url = args.url
 if args.tracks:
