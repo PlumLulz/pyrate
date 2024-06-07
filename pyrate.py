@@ -137,7 +137,7 @@ def search(keyword, limit, offset):
 				offset = limit
 				if int(offset) > int(total.replace(",", "")):
 					offset = 0
-					print("\033[%sF\033[J" % (int(len(a))+8), end="")
+					print("\033[%sF\033[J" % (int(len(a))+7), end="")
 					print("No more results to display, refreshing last page.")
 					search(keyword, limit, offset)
 				else:
