@@ -194,6 +194,10 @@ print ("""
       |                                     |___/ 
       |
       |
+Pirate(noun)
+/ˈpīrət/
+1.  a person who practices piracy;
+
 """)
 
 # Parse arguments
